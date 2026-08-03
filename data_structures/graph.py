@@ -15,7 +15,6 @@ class Graph:
             self._adjacency[v].append((u, weight))
 
     def neighbors(self, node):
-        """Returns list of (neighbor, weight) tuples."""
         return self._adjacency.get(node, [])
 
     def neighbor_names(self, node):
