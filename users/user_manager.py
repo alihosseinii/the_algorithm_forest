@@ -4,6 +4,7 @@ import os
 from data_structures.hash_table import HashTable
 from data_structures.bst import BST
 from data_structures.max_heap import MaxHeap
+from users.security import hash_password, verify_password
 
 DEFAULT_DATA_FILE = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "users.json"
@@ -63,10 +64,26 @@ class UserManager:
         return self.table.contains(username)
 
     def register(self, username, password):
-        pass
+        username = username.strip()
+        if not username or not password:
+            return False, "username and password cant be empty."
+        if self.username_exists(username):
+            return False, "this username is alraedy exists."
+        user = User(username, hash_password(password), score=0)
+        self.table.set(username, user)
+        self._save()
+        self._rebuild_indexes()
+        return True, "account created successfully."
 
     def login(self, username, password):
-        pass
+        username = username.strip()
+        user = self.table.get(username)
+        if user is None:
+            return False, "this account doesnt exist.", None
+        if not verify_password(password, user.password_hash):
+            return False, "the password is incorrect.", None
+        return True, "login successful.", user
+
 
     def add_score(self, username, delta_score):
         user = self.table.get(username)
